@@ -5,7 +5,7 @@ sudo: enabled
 branches:
   ony:
     - master
-install: mvn install -DskipTests -Dgpg.skip
+install: mvn install -Dgpg.skip
 after_success:
   - mvn clean test jacoco:report coveralls:report
 notifications: 
