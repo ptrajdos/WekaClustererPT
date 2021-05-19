@@ -42,7 +42,7 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 	 * 
 	 */
 	public ClassSpecificClusterer() {
-		super();
+		super(); 
 	}
 
 	@Override
