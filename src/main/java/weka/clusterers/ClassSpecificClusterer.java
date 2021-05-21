@@ -136,6 +136,15 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 	public Capabilities getCapabilities() {
 		Capabilities caps = super.getCapabilities();
 		caps.disable(Capability.NO_CLASS);
+		
+		caps.enable(Capability.NOMINAL_CLASS);
+		caps.enable(Capability.STRING_CLASS);
+		
+		 // set dependencies
+	    for (Capability cap : Capability.values()) {
+	      caps.enableDependency(cap);
+	    }
+		
 		return caps;
 	}
 

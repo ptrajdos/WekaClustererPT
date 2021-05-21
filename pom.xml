@@ -9,7 +9,7 @@
   <packaging>jar</packaging>
   <version>0.0.1</version>
 
-  <name>Weka Ensemble systems</name>
+  <name>Weka Clusterer </name>
   <description> Weka implementation of the Clustering systems for Weka </description>
   <url>https://github.com/ptrajdos/wekaEnsembleSystems/tree/master</url>
 

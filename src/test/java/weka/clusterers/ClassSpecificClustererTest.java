@@ -99,6 +99,14 @@ public class ClassSpecificClustererTest extends AbstractClustererTest {
 		Clusterer clust = this.getClusterer();
 		Capabilities caps  = clust.getCapabilities();
 		assertTrue("No class capaiblity disabled", !caps.handles(Capability.NO_CLASS));
+		RandomDataGenerator gen = new RandomDataGenerator();
+		Instances data = gen.generateData();
+		
+		try {
+			caps.testWithFail(data);
+		} catch (Exception e) {
+			fail("Capabilities checking against the data has failed: " + e.getMessage());
+		}
 		
 	}
 
