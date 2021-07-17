@@ -7,6 +7,8 @@ import weka.core.Instance;
 import weka.core.Utils;
 
 /**
+ * A class for clusterers that make separate clustering for each available class. 
+ * Then the final cluster is composed using nearest class-specific clusters.
  * @author pawel trajdos
  * @since 0.0.1
  * @version 0.0.1

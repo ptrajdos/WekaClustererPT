@@ -80,8 +80,15 @@
     <dependency>
         <groupId>com.github.ptrajdos</groupId>
         <artifactId>WekaTools</artifactId>
-        <version>[1.8.0,)</version>
+        <version>[1.11.0,)</version>
     </dependency>
+
+    <dependency>
+    <groupId>nz.ac.waikato.cms.weka</groupId>
+    <artifactId>XMeans</artifactId>
+    <version>1.0.6</version>
+</dependency>
+
 
 
 
