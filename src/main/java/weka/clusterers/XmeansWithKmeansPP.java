@@ -14,6 +14,7 @@ import org.apache.commons.math3.util.Pair;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
+import weka.core.UtilsPT;
 
 /**
  * Class implements Xmeans with the initialization using K-Means++
@@ -119,6 +120,21 @@ public class XmeansWithKmeansPP extends XMeans {
 			cnt++;
 		}	
 		return selectedInstance;
+	}
+	
+	@Override
+	public double[] distributionForInstance(Instance instance) throws Exception {
+		
+		this.m_ReplaceMissingFilter.input(instance);
+	    Instance inst = this.m_ReplaceMissingFilter.output();
+	    
+	    double[] dists = new double[this.numberOfClusters()];
+	    for(int i =0;i<dists.length;i++) {
+	    	dists[i] = this.m_DistanceF.distance(inst, this.m_ClusterCenters.instance(i));
+	    }
+	    double[] distribution = UtilsPT.softMin(dists);
+	    
+		return distribution;
 	}
 	
 	
