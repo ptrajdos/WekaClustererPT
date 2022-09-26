@@ -7,11 +7,11 @@
   <groupId>com.github.ptrajdos</groupId>
   <artifactId>WekaClustererPT</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 
   <name>Weka Clusterer </name>
   <description> Weka implementation of the Clustering systems for Weka </description>
-  <url>https://github.com/ptrajdos/wekaEnsembleSystems/tree/master</url>
+  <url>https://github.com/ptrajdos/WekaClustererPT/tree/master</url>
 
   
   <licenses>
@@ -328,14 +328,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.4.1</version>
         <configuration>
-          <maxmemory>256m</maxmemory>
-          <subpackages>weka:org</subpackages>
           <show>public</show>
-          <outputDirectory>${project.basedir}/doc</outputDirectory>
-          <!-- when using Java 8, use this setting to avoid overly strict javadoclet -->
-          <additionalparam>-Xdoclint:none</additionalparam>
         </configuration>
         <executions>
           <execution>
