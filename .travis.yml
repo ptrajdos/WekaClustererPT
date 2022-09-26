@@ -3,7 +3,7 @@ language: java
 jdk: openjdk11
 sudo: enabled 
 branches:
-  ony:
+  only:
     - master
 install: mvn install -Dgpg.skip
 after_success:
