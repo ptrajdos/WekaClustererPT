@@ -38,6 +38,8 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 	
 	protected int numberOfClusters;
 
+	protected int numberOfClasses;
+
 	/**
 	 * 
 	 */
@@ -53,20 +55,25 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 		int numInstances = data.numInstances();
 		
 		if(classIndex <0) {
-			this.noClass = true; 
+			this.noClass = true;
+			this.numberOfClasses = 0; 
 			if(!this.m_DoNotCheckCapabilities)
 				this.m_Clusterer.getCapabilities().testWithFail(data);
 			this.m_Clusterer.buildClusterer(data);
 			this.numberOfClusters = this.m_Clusterer.numberOfClusters();
 			return;
 		}
+
+		
 		if(numInstances ==0) {
 			this.noInstances=true;
 			this.numberOfClusters=1;
+			this.numberOfClasses = 1;
 			return;
 		}
 		
 		Instances[] classSplitData = InstancesOperator.classSpecSplit(data);
+		this.numberOfClasses = classSplitData.length;
 		int numClasses = classSplitData.length;
 		this.clusterers = AbstractClusterer.makeCopies(this.m_Clusterer, numClasses);
 		
@@ -119,6 +126,60 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 	@Override
 	public int numberOfClusters() throws Exception {
 		return this.numberOfClusters;
+	}
+
+	/**
+	 * Returns the number of classes
+	 * @return 0 if no classes during training or value greater or equal one.
+	 * @throws Exception
+	 */
+	public int numberOfClasses()throws Exception{
+
+		return this.numberOfClasses;
+
+	}
+
+	/**
+	 * Returns class-specific cluster responses
+	 * @param instance
+	 * @return array of class-specific cluster responses
+	 * @throws Exception
+	 */
+	public double[][] classSpecificDistributionForInstance(Instance instance) throws Exception{
+
+		if(this.noClass){
+			return  new double[][] {this.distributionForInstance(instance)};
+		}
+
+		if (this.noInstances){
+			return new double[][] {{0.0}};
+		}
+
+		double [][] distribution = new double[this.clusterers.length][];
+
+		this.removeFilter.input(instance);
+		Instance filteredInstance = this.removeFilter.output();
+		this.removeFilter.batchFinished();
+
+		for(int i =0; i<this.clusterers.length;i++){
+			distribution[i] = this.clusterers[i].distributionForInstance(filteredInstance);
+		}
+
+		return distribution;
+	}
+
+	public double[][][] classSpecificDistrbutionForInstances(Instances instances) throws Exception{
+		
+		int numInstances = instances.numInstances();
+
+		double[][][] distribution = new double[numInstances][][];
+
+		for(int i=0;i<numInstances;i++){
+			Instance instance = instances.get(i);
+			distribution[i] = this.classSpecificDistributionForInstance(instance);
+		}
+
+		return distribution;
 	}
 	
 	protected void calculateNumberOfClusters() throws Exception {
