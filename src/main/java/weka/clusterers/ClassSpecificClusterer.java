@@ -3,6 +3,8 @@
  */
 package weka.clusterers;
 
+import java.util.Arrays;
+
 import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.Instance;
@@ -33,6 +35,8 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 	protected boolean noClass=false;
 	
 	protected boolean noInstances=false;
+
+	protected boolean classesOnly = false;
 	
 	protected Clusterer[] clusterers;
 	
@@ -65,10 +69,18 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 		}
 
 		
-		if(numInstances ==0) {
+		if(numInstances == 0) {
 			this.noInstances=true;
-			this.numberOfClusters=1;
-			this.numberOfClasses = 1;
+			this.numberOfClasses = data.numClasses();
+			this.numberOfClusters= this.numberOfClasses;
+			return;
+		}
+
+		int nAttributes = data.numAttributes();
+		if (classIndex>=0 & nAttributes==1){
+			this.classesOnly = true;
+			this.numberOfClasses = data.numClasses();
+			this.numberOfClusters = this.numberOfClasses;
 			return;
 		}
 		
@@ -97,10 +109,16 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 	
 	@Override
 	public double[] distributionForInstance(Instance instance) throws Exception {
-		if(this.noInstances)
-			return new double[] {1.0};
+		
 		if(this.noClass)
 			return this.m_Clusterer.distributionForInstance(instance);
+
+		if(this.classesOnly | this.noInstances){
+			double[] result = new double[this.numberOfClasses];
+			Arrays.fill(result, 0, result.length, 1);
+			Utils.normalize(result);
+			return result;
+		}
 		
 		this.removeFilter.input(instance);
 		Instance filteredInstance = this.removeFilter.output();
@@ -151,8 +169,14 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 			return  new double[][] {this.distributionForInstance(instance)};
 		}
 
-		if (this.noInstances){
-			return new double[][] {{0.0}};
+		if(this.classesOnly | this.noInstances){
+			double[][] result = new double[this.numberOfClasses][1];
+
+			for(int i=0;i<result.length;i++){
+				result[i][0] = 1.0;
+			}
+
+			return result;
 		}
 
 		double [][] distribution = new double[this.clusterers.length][];
@@ -180,6 +204,26 @@ public class ClassSpecificClusterer extends SingleClustererEnhancer implements G
 		}
 
 		return distribution;
+	}
+
+	public int[] numberOfClassSpecificClusters() throws Exception{
+
+		if(this.noClass){
+			return new int[] {this.m_Clusterer.numberOfClusters()};
+		}
+
+		if(this.classesOnly | this.noInstances){
+			int[] result = new int[this.numberOfClasses];
+			Arrays.fill(result, 0, this.numberOfClasses , 1);
+			return result;
+		}
+
+		int[] clustersNumber = new int[this.clusterers.length];
+
+		for(int c=0; c<this.clusterers.length; c++){
+			clustersNumber[c] = this.clusterers[c].numberOfClusters();
+		}
+		return clustersNumber;
 	}
 	
 	protected void calculateNumberOfClusters() throws Exception {

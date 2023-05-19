@@ -7,7 +7,7 @@
   <groupId>com.github.ptrajdos</groupId>
   <artifactId>WekaClustererPT</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.3</version>
+  <version>0.0.4</version>
 
   <name>Weka Clusterer </name>
   <description> Weka implementation of the Clustering systems for Weka </description>

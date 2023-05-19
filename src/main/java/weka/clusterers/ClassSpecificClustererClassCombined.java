@@ -3,6 +3,8 @@
  */
 package weka.clusterers;
 
+import java.util.Arrays;
+
 import weka.core.Instance;
 import weka.core.Utils;
 
@@ -29,10 +31,16 @@ public class ClassSpecificClustererClassCombined extends ClassSpecificClusterer 
 	}
 	@Override
 	public double[] distributionForInstance(Instance instance) throws Exception {
-		if(this.noInstances)
-			return new double[] {1.0};
+		
 		if(this.noClass)
 			return this.m_Clusterer.distributionForInstance(instance);
+
+		if(this.classesOnly | this.noInstances){
+			double[] result = new double[this.numberOfClasses];
+			Arrays.fill(result, 0, result.length-1, 1);
+			Utils.normalize(result);
+			return result;
+		}
 		
 		double[] distribution = new double[this.numberOfClusters];
 		

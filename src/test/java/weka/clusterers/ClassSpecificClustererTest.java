@@ -83,15 +83,17 @@ public class ClassSpecificClustererTest extends AbstractClustererTest {
 		try {
 			clust.buildClusterer(data);
 			int numberOfClusters = clust.numberOfClusters();
+			int nClasses = data.numClasses();
 			for (Instance instance : testData) {
 				double[] distribution = clust.distributionForInstance(instance);
 				assertTrue("Distribution length", numberOfClusters == distribution.length);
 				assertTrue("Distribution check", DistributionChecker.checkDistribution(distribution));
 				double[][] classSpecDistribution = cClust.classSpecificDistributionForInstance(instance);
-				assertTrue("Number of classes", cClust.numberOfClasses() == 1);
-				assertTrue("No instances class-specific cluster response length", classSpecDistribution.length == 1);
+				assertTrue("Number of classes", cClust.numberOfClasses() == nClasses);
+				assertTrue("No instances class-specific cluster response length", classSpecDistribution.length == nClasses);
 				assertTrue("No instances class-specific cluster response", classSpecDistribution[0].length == 1);
-				assertTrue("No instances class-specific cluster response -- value", Utils.eq(classSpecDistribution[0][0], 0) );
+				for( int c =0; c<nClasses; c++)
+					assertTrue("No instances class-specific cluster response -- value", Utils.eq(classSpecDistribution[c][0], 1) );
 
 			}
 		} catch (Exception e) {
@@ -130,6 +132,52 @@ public class ClassSpecificClustererTest extends AbstractClustererTest {
 		}catch(Exception e){
 			fail("An exception has been caught: " + e);
 		}
+	}
+
+	public void testOnClassOnly(){
+		Clusterer clusterer = this.getClusterer();
+		ClassSpecificClusterer cClust = (ClassSpecificClusterer)clusterer;
+
+		RandomDataGenerator gen = new RandomDataGenerator();
+		gen.setNumNominalAttributes(0);
+		gen.setNumStringAttributes(0);
+		gen.setNumDateAttributes(0);
+		gen.setAddClassAttrib(true);
+		gen.setNumNumericAttributes(0);
+
+		Instances data = gen.generateData();
+		int nClasses = data.numClasses();
+
+		try{
+			clusterer.buildClusterer(data);
+
+			int[] classSpecCluserNum = cClust.numberOfClassSpecificClusters();
+			assertTrue("Number of class-specific clusters", classSpecCluserNum.length == nClasses);
+			for(int c = 0; c<classSpecCluserNum.length;c++){
+				assertTrue("Per class cluster number", classSpecCluserNum[c] == 1);
+			}
+			for (Instance instance : data) {
+				double[] distribution = clusterer.distributionForInstance(instance);
+				int numberOfClusters = clusterer.numberOfClusters();
+
+				assertTrue("Distribution length", numberOfClusters == distribution.length);
+				assertTrue("Distribution check", DistributionChecker.checkDistribution(distribution));
+
+				double[][] classSpecDistribution = cClust.classSpecificDistributionForInstance(instance);
+				assertTrue("Number of classes", cClust.numberOfClasses() == data.numClasses());
+				int numClasses = data.numClasses();
+				assertTrue("Number of classes for class-specific distribution", classSpecDistribution.length == numClasses );
+				for(int c=0; c<numClasses;c++){
+					assertTrue("Number of clusters for class-specific distribution", classSpecDistribution[c].length == 1);
+					assertTrue("Class specific distribution check", DistributionChecker.checkDistribution(classSpecDistribution[c]));
+				}
+				
+			}
+
+		}catch(Exception e){
+			fail("An exception has been caught: " + e);
+		}
+
 	}
 	
 	public void testOnCondensedData() {
