@@ -9,7 +9,7 @@ PackageName= WekaClustererPT
 Version=0.0.4
 
 #Date
-Date=2023-18-05
+Date=2024-03-05
 
 # Title (required)
 Title= Various clustering algorithms for Weka
