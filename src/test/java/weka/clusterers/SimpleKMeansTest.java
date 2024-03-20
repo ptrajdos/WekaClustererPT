@@ -14,9 +14,9 @@ import weka.tools.data.RandomDoubleGeneratorGaussian;
 import weka.tools.tests.DistributionChecker;
 import weka.tools.tests.WekaGOEChecker;
 
-public class XmeansWithKmeansPPTest extends AbstractClustererTest {
+public class SimpleKMeansTest extends AbstractClustererTest {
 
-	public XmeansWithKmeansPPTest(String name) {
+	public SimpleKMeansTest(String name) {
 		super(name);
 		// TODO Auto-generated constructor stub
 	}
@@ -24,7 +24,7 @@ public class XmeansWithKmeansPPTest extends AbstractClustererTest {
 
 	@Override
 	public Clusterer getClusterer() {
-		return new XmeansWithKmeansPP();
+		return new SimpleKMeans();
 	}
 	
 	public void testTipTexts() {
@@ -111,12 +111,12 @@ public class XmeansWithKmeansPPTest extends AbstractClustererTest {
 		 Instances testingDataset = gen.generateData();
 		 try {
 			clusterer.buildClusterer(trainingDataset);
-			int nClusters = clusterer.numberOfClusters(); //TODO one instance in training set, but the effective number of clusters is two
+			int nClusters = clusterer.numberOfClusters();
 			int[] clusterCounts = new int [nClusters];
 			
 			for (Instance instance : testingDataset) {
 				double[] distribution = clusterer.distributionForInstance(instance);
-				int winnerIdx = Utils.maxIndex(distribution);//Uniform distribution over clusters
+				int winnerIdx = Utils.maxIndex(distribution);
 				clusterCounts[winnerIdx]++;
 				assertTrue("Check distribution", DistributionChecker.checkDistribution(distribution));
 			}
@@ -162,78 +162,5 @@ public class XmeansWithKmeansPPTest extends AbstractClustererTest {
 		}
 	 }
 	
-	public void testDistanceList() {
-		 XmeansWithKmeansPP clusterer = (XmeansWithKmeansPP) this.getClusterer();
-		 RandomDataGenerator gen = new RandomDataGenerator();
-		 gen.setNumNominalAttributes(0);
-		 gen.setAddClassAttrib(false);
-		 
-		 Instances data = gen.generateData();
-		 Instance tmpInstance = data.get(0);
-		 
-		 try {
-			clusterer.buildClusterer(data);
-		} catch (Exception e) {
-			fail("An exception has been thrown!" + e.getMessage());
-		}
-		 
-		 List<Pair<Instance,Double>> sqDistList =clusterer.getSquaredDistances(tmpInstance);
-		 
-		 assertTrue("List not null", sqDistList !=null);
-		 
-		 int listLen = sqDistList.size();
-		 boolean increasingOrder=true;
-		 
-		 for(int i=0 ;i<listLen-1;i++) {
-			 if(sqDistList.get(i).getValue() < sqDistList.get(i+1).getValue()) {
-				 increasingOrder=false;
-				 break;
-			 }	 
-		 }
-		 
-		 assertTrue("Decreasing order", increasingOrder);
-		 
-	}
-	
-	public void testRouleteSelector() {
-		XmeansWithKmeansPP clusterer = (XmeansWithKmeansPP) this.getClusterer();
-		 RandomDataGenerator gen = new RandomDataGenerator();
-		 gen.setNumNominalAttributes(0);
-		 gen.setAddClassAttrib(false);
-		 
-		 Instances data = gen.generateData();
-		 Instance tmpInstance = data.get(0);
-		 
-		 Instance selectedInstance = null;
-		 Random rnd = new Random(0);
-		 try {
-			clusterer.buildClusterer(data);
-			List<Pair<Instance,Double>> sqDistList =clusterer.getSquaredDistances(tmpInstance);
-			selectedInstance = clusterer.rouletteSelector(sqDistList, rnd);
-			
-			assertTrue("Selected not null", selectedInstance!=null);
-			
-		} catch (Exception e) {
-			fail("An exception has been thrown!" + e.getMessage());
-		}
-	}
-	
-	public void testDateAttribs() {
-		XmeansWithKmeansPP clusterer = (XmeansWithKmeansPP) this.getClusterer();
-		 RandomDataGenerator gen = new RandomDataGenerator();
-		 gen.setNumNominalAttributes(0);
-		 gen.setNumNumericAttributes(0);
-		 gen.setNumDateAttributes(4);
-		 gen.setAddClassAttrib(false);
-		 
-		 Instances data = gen.generateData();
-		 
-		 try {
-			clusterer.buildClusterer(data);
-		} catch (Exception e) {
-			fail("An exception has been caught:" + e.getMessage());
-		}
-	}
-
 
 }

@@ -45,13 +45,20 @@ public class ClassSpecificClustererTest extends AbstractClustererTest {
 			int desiredNumberOfClusters = numClasses * 2;
 			ClassSpecificClusterer cClust = (ClassSpecificClusterer)clust;
 			assertTrue("Wrong number of clusters for the default implementation", numberOfClusters == desiredNumberOfClusters);
+			int[][] instancesCounts = new int[numClasses][2];
+			
 			for (Instance instance : data) {
 				double[] distribution = clust.distributionForInstance(instance);
 				assertTrue("Distribution length", numberOfClusters == distribution.length);
 				assertTrue("Distribution check", DistributionChecker.checkDistribution(distribution));
-
+				
 				
 				double[][] classSpecDistribution = cClust.classSpecificDistributionForInstance(instance);
+				
+				int classIdx =(int) instance.classValue();
+				int selClusterIdx = classSpecDistribution[classIdx][0] > classSpecDistribution[classIdx][1]? 0:1;
+				instancesCounts[classIdx][selClusterIdx]+=1;
+				
 				assertTrue("Number of classes", cClust.numberOfClasses() == 2);
 				assertTrue("Number of classes for class-specific distribution", classSpecDistribution.length == 2);
 				assertTrue("Number of clusters for class-specific distribution", classSpecDistribution[0].length == 2);
@@ -59,6 +66,62 @@ public class ClassSpecificClustererTest extends AbstractClustererTest {
 				assertTrue("Class specific distribution check", DistributionChecker.checkDistribution(classSpecDistribution[0]));
 				assertTrue("Class specific distribution check", DistributionChecker.checkDistribution(classSpecDistribution[1]));
 				
+			}
+			for(int c=0; c<numClasses;c++) {
+				for(int j=0;j<2;j++) {
+					assertTrue("Empty final cluster: ["+ c +";" + j + "]",instancesCounts[c][j]>0);
+				}
+			}
+
+			double[][][] classSpecDistributionAll = cClust.classSpecificDistrbutionForInstances(data);
+			assertTrue("Number of predicted class-specific instances", classSpecDistributionAll.length == data.numInstances());
+
+
+		} catch (Exception e) {
+			fail("An exception has been caught: " + e.getMessage());
+		} 
+	}
+	
+	public void testClassDataSmallSample() {
+		RandomDataGenerator gen = new RandomDataGenerator();
+		gen.setNumObjects(4);
+		Instances data = gen.generateData();
+		int numClasses = data.numClasses();
+
+		
+		Clusterer clust = this.getClusterer();
+		try {
+			clust.buildClusterer(data);
+			int numberOfClusters = clust.numberOfClusters();
+			int desiredNumberOfClusters = numClasses * 2;
+			ClassSpecificClusterer cClust = (ClassSpecificClusterer)clust;
+			assertTrue("Wrong number of clusters for the default implementation", numberOfClusters == desiredNumberOfClusters);
+			int[][] instancesCounts = new int[numClasses][2];
+			
+			for (Instance instance : data) {
+				double[] distribution = clust.distributionForInstance(instance);
+				assertTrue("Distribution length", numberOfClusters == distribution.length);
+				assertTrue("Distribution check", DistributionChecker.checkDistribution(distribution));
+				
+				
+				double[][] classSpecDistribution = cClust.classSpecificDistributionForInstance(instance);
+				
+				int classIdx =(int) instance.classValue();
+				int selClusterIdx = classSpecDistribution[classIdx][0] > classSpecDistribution[classIdx][1]? 0:1;
+				instancesCounts[classIdx][selClusterIdx]+=1;
+				
+				assertTrue("Number of classes", cClust.numberOfClasses() == 2);
+				assertTrue("Number of classes for class-specific distribution", classSpecDistribution.length == 2);
+				assertTrue("Number of clusters for class-specific distribution", classSpecDistribution[0].length == 2);
+				assertTrue("Number of clusters for class-specific distribution", classSpecDistribution[1].length == 2);
+				assertTrue("Class specific distribution check", DistributionChecker.checkDistribution(classSpecDistribution[0]));
+				assertTrue("Class specific distribution check", DistributionChecker.checkDistribution(classSpecDistribution[1]));
+				
+			}
+			for(int c=0; c<numClasses;c++) {
+				for(int j=0;j<2;j++) {
+					assertTrue("Empty final cluster: ["+ c +";" + j + "]",instancesCounts[c][j]>0);
+				}
 			}
 
 			double[][][] classSpecDistributionAll = cClust.classSpecificDistrbutionForInstances(data);

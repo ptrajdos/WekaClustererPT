@@ -39,10 +39,13 @@ public class XmeansWithKmeansPP extends XMeans {
 	
 	@Override
 	protected Instances makeCentersRandomly(Random random0, Instances model, int numClusters) {
-		//return super.makeCentersRandomly(random0, model, numClusters);
 		
-		Instances clusterCenters = new Instances(model, numClusters);
-	    this.m_NumClusters = numClusters;
+		int totalInstances = this.m_Instances.numInstances();
+		int numEffectiveClusters = Math.min(totalInstances, numClusters); 
+		
+		
+		Instances clusterCenters = new Instances(model, numEffectiveClusters);
+	    this.m_NumClusters = numEffectiveClusters;
 	    
 	    int instIndex = Math.abs(random0.nextInt()) % this.m_Instances.numInstances();
 	    Instance lastSelected = this.m_Instances.get(instIndex);
