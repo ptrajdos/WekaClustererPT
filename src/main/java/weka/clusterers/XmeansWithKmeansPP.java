@@ -15,6 +15,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.UtilsPT;
+import weka.tools.InstancesTools;
 
 /**
  * Class implements Xmeans with the initialization using K-Means++
@@ -29,6 +30,11 @@ public class XmeansWithKmeansPP extends XMeans {
 	 * 
 	 */
 	private static final long serialVersionUID = -6645825577412294656L;
+	
+	/**
+	 * Contains the number of unique instances
+	 */
+	protected int m_UniqueInstancesNumber = 0;
 
 	/**
 	 * 
@@ -37,11 +43,20 @@ public class XmeansWithKmeansPP extends XMeans {
 		super();
 	}
 	
+	
+	
+	@Override
+	public void buildClusterer(Instances data) throws Exception {
+		this.m_UniqueInstancesNumber = InstancesTools.countUniqieInstances(data);
+		super.buildClusterer(data);
+	}
+
+
+
 	@Override
 	protected Instances makeCentersRandomly(Random random0, Instances model, int numClusters) {
 		
-		int totalInstances = this.m_Instances.numInstances();
-		int numEffectiveClusters = Math.min(totalInstances, numClusters); 
+		int numEffectiveClusters = Math.min(this.m_UniqueInstancesNumber, numClusters);
 		
 		
 		Instances clusterCenters = new Instances(model, numEffectiveClusters);

@@ -6,6 +6,7 @@ package weka.clusterers;
 import java.util.Random;
 
 import weka.core.Instances;
+import weka.tools.InstancesTools;
 
 /**
  * 
@@ -13,18 +14,23 @@ import weka.core.Instances;
 public class XMeansFixed extends XMeans {
 
 	private static final long serialVersionUID = 8623299605516980769L;
-
 	/**
-	 * 
+	 * Contains the number of unique instances
 	 */
-	public XMeansFixed() {
-		// TODO Auto-generated constructor stub
+	protected int m_UniqueInstancesNumber = 0;
+
+	
+
+	@Override
+	public void buildClusterer(Instances data) throws Exception {
+		this.m_UniqueInstancesNumber = InstancesTools.countUniqieInstances(data);
+		super.buildClusterer(data);
 	}
+
 
 	@Override
 	protected Instances makeCentersRandomly(Random random0, Instances model, int numClusters) {
-		int numTrainingInstances = this.m_Instances.numInstances();
-		int numEffectiveClusters = Math.min(numTrainingInstances, numClusters);
+		int numEffectiveClusters = Math.min(this.m_UniqueInstancesNumber, numClusters);
 		
 		 Instances clusterCenters = new Instances(model, numEffectiveClusters);
 		    m_NumClusters = numEffectiveClusters;

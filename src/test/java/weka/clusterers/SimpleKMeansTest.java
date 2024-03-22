@@ -130,6 +130,42 @@ public class SimpleKMeansTest extends AbstractClustererTest {
 		}
 	 }
 	
+	public void testReclusterSamplesOneSampleDuplicated() {
+		 Clusterer clusterer = this.getClusterer();
+		 RandomDataGenerator gen = new RandomDataGenerator();
+		 gen.setNumNominalAttributes(0);
+		 gen.setNumStringAttributes(0);
+		 gen.setNumDateAttributes(0);
+		 gen.setAddClassAttrib(false);
+		 gen.setNumObjects(1);
+		 
+		 
+		 Instances trainingDataset = gen.generateData();
+		 trainingDataset.add(trainingDataset.get(0));//Two duplicated instances
+		 
+		 gen.setNumObjects(100);
+		 Instances testingDataset = gen.generateData();
+		 try {
+			clusterer.buildClusterer(trainingDataset);
+			int nClusters = clusterer.numberOfClusters();
+			int[] clusterCounts = new int [nClusters];
+			
+			for (Instance instance : testingDataset) {
+				double[] distribution = clusterer.distributionForInstance(instance);
+				int winnerIdx = Utils.maxIndex(distribution);
+				clusterCounts[winnerIdx]++;
+				assertTrue("Check distribution", DistributionChecker.checkDistribution(distribution));
+			}
+			
+			for(int i =0 ;i<clusterCounts.length;i++) {
+				assertTrue("Empty cluster!", clusterCounts[i]>0);
+			}
+			
+		} catch (Exception e) {
+			fail("An exception has been caught " + e.getMessage());
+		}
+	 }
+	
 	public void testReclusterSamples() {
 		 Clusterer clusterer = this.getClusterer();
 		 RandomDataGenerator gen = new RandomDataGenerator();
