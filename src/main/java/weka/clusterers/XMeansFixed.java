@@ -9,7 +9,10 @@ import weka.core.Instances;
 import weka.tools.InstancesTools;
 
 /**
- * 
+ * Fixed Xmeans
+ * @author pawel trajdos
+ * @since 0.0.5
+ * @version 0.0.5
  */
 public class XMeansFixed extends XMeans {
 

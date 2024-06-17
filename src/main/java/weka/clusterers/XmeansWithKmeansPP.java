@@ -20,8 +20,8 @@ import weka.tools.InstancesTools;
 /**
  * Class implements Xmeans with the initialization using K-Means++
  * @author pawel trajdos
- * @since 0.0.1
- * @version 0.0.1
+ * @since 0.0.5
+ * @version 0.0.5
  *
  */
 public class XmeansWithKmeansPP extends XMeans {
