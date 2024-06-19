@@ -4,9 +4,12 @@
 package weka.clusterers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
@@ -15,13 +18,15 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.UtilsPT;
+import weka.filters.Filter;
+import weka.filters.unsupervised.instance.RemoveDuplicates;
 import weka.tools.InstancesTools;
 
 /**
  * Class implements Xmeans with the initialization using K-Means++
  * @author pawel trajdos
- * @since 0.0.5
- * @version 0.0.5
+ * @since 0.0.4
+ * @version 0.0.6
  *
  */
 public class XmeansWithKmeansPP extends XMeans {
@@ -35,6 +40,7 @@ public class XmeansWithKmeansPP extends XMeans {
 	 * Contains the number of unique instances
 	 */
 	protected int m_UniqueInstancesNumber = 0;
+	public static int nRepeats = 100;
 
 	/**
 	 * 
@@ -47,8 +53,13 @@ public class XmeansWithKmeansPP extends XMeans {
 	
 	@Override
 	public void buildClusterer(Instances data) throws Exception {
-		this.m_UniqueInstancesNumber = InstancesTools.countUniqieInstances(data);
-		super.buildClusterer(data);
+		
+		RemoveDuplicates removeDuplicates = new RemoveDuplicates();
+		removeDuplicates.setInputFormat(data);
+		Instances noDupsData = Filter.useFilter(data, removeDuplicates);
+		
+		this.m_UniqueInstancesNumber = InstancesTools.countUniqieInstances(noDupsData);
+		super.buildClusterer(noDupsData);
 	}
 
 
@@ -62,18 +73,49 @@ public class XmeansWithKmeansPP extends XMeans {
 		Instances clusterCenters = new Instances(model, numEffectiveClusters);
 	    this.m_NumClusters = numEffectiveClusters;
 	    
+	    
+	    
+	    if(numEffectiveClusters == this.m_UniqueInstancesNumber) {
+	    	for(Instance instance: m_Instances) {
+	    		clusterCenters.add(instance);
+	    	}
+	    	return clusterCenters;
+	    }
+	    
+	    
+	    Map<Integer,Integer> instanceMap = new HashMap<>();
+	    
 	    int instIndex = Math.abs(random0.nextInt()) % this.m_Instances.numInstances();
 	    Instance lastSelected = this.m_Instances.get(instIndex);
 	    clusterCenters.add(lastSelected);
 	    
-	    if(this.m_NumClusters==1)
-	    	return clusterCenters;
+	    instanceMap.put(Arrays.hashCode(lastSelected.toDoubleArray()),1);
 	    
 	    Instance tmpInstance = null;
+	    
 	    for(int i=1;i<this.m_NumClusters;i++) {
-	    	tmpInstance = this.selectNextCenter(lastSelected, random0);
-	    	clusterCenters.add(tmpInstance);
-	    	lastSelected = tmpInstance;
+	    	int counter = 0;
+	    	while(true) {
+	    		counter++;
+	    		
+	    		if (counter > XmeansWithKmeansPP.nRepeats) {
+	    			//Safety break
+	    			this.m_NumClusters = clusterCenters.size();
+	    			return clusterCenters;
+	    		}
+	    		
+	    		tmpInstance = this.selectNextCenter(lastSelected, random0);
+	    		if (instanceMap.containsKey( Arrays.hashCode(tmpInstance.toDoubleArray()) ))
+	    			continue;
+	    		
+	    		clusterCenters.add(tmpInstance);
+		    	lastSelected = tmpInstance;
+		    	instanceMap.put(Arrays.hashCode(tmpInstance.toDoubleArray()), 1);
+		    	break;
+	    		
+	    	}
+	    	
+	    	
 	    }
 	    
 		

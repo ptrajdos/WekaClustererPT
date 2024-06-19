@@ -198,5 +198,48 @@ public class XMeansFixedTest extends AbstractClustererTest {
 		}
 	 }
 	
+	public void testReclusterSamplesSevereDuplicates() {
+		 XMeansFixed clusterer = (XMeansFixed) this.getClusterer();
+		 clusterer.setMinNumClusters(1);
+		 clusterer.setMaxNumClusters(10);
+		 
+		 RandomDataGenerator gen = new RandomDataGenerator();
+		 gen.setNumNominalAttributes(0);
+		 gen.setNumStringAttributes(0);
+		 gen.setNumDateAttributes(0);
+		 gen.setAddClassAttrib(false);
+		 gen.setNumObjects(100);
+		 
+		 
+		 Instances datasetInit = gen.generateData();
+		 Instances dataset = new Instances(datasetInit, 0);
+		 int repetition = 5;
+		 int uniq = 2;
+		 for(int u=0; u< uniq; u++)
+			 for (int r =0; r<repetition; r++) {
+				 dataset.add(datasetInit.get(u));
+			 }
+		 
+		 try {
+			clusterer.buildClusterer(dataset);
+			int nClusters = clusterer.numberOfClusters();
+			int[] clusterCounts = new int [nClusters];
+			
+			for (Instance instance : dataset) {
+				double[] distribution = clusterer.distributionForInstance(instance);
+				int winnerIdx = Utils.maxIndex(distribution);
+				clusterCounts[winnerIdx]++;
+				assertTrue("Check distribution", DistributionChecker.checkDistribution(distribution));
+			}
+			
+			for(int i =0 ;i<clusterCounts.length;i++) {
+				assertTrue("Empty cluster!", clusterCounts[i]>0);
+			}
+			
+		} catch (Exception e) {
+			fail("An exception has been caught " + e.getMessage());
+		}
+	 }
+	
 
 }
